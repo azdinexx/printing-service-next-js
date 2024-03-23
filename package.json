@@ -10,16 +10,22 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.536.0",
+    "@aws-sdk/s3-request-presigner": "^3.537.0",
+    "@shopify/shopify-api": "^9.5.1",
     "aws-sdk": "^2.1579.0",
+    "jsonwebtoken": "^9.0.2",
     "next": "14.1.3",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "shopify": "^0.1.0"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
+    "daisyui": "^4.7.3",
     "eslint": "^8",
     "eslint-config-next": "14.1.3",
     "postcss": "^8",

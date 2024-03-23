@@ -1,55 +1,97 @@
-'use client';
-import { uploadFileToS3 } from '@/lib/actions';
-import Image from 'next/image';
-import { ChangeEvent, FormEvent, useState } from 'react';
+import Link from 'next/link';
+import React from 'react';
 
-export default function Home() {
-  const [file, setFile] = useState<File | null>(null);
-  const [uploadedFileURL, setUploadedFileURL] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = event.target.files?.[0];
-    console.log('selectedFile:', selectedFile);
-    if (selectedFile) {
-      setFile(selectedFile);
-    }
+export type UploadType = {
+  Key: string;
+  LastModified: string;
+  Etag: string;
+  Size: number;
+  StorageClass: string;
+  Owner: {
+    DisplayName: string;
+    ID: string;
   };
+};
+export const dynamic = 'force-dynamic';
 
-  const submit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!file) return;
-    setLoading(true);
-    const formData = new FormData();
-    formData.append('file', file);
-    try {
-      const url = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      }).then((res) => res.json());
-      setUploadedFileURL(url);
-      setLoading(false);
-    } catch (err) {
-      console.error('Error uploading file:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+async function page() {
+  const uploads = await fetch(`http:localhost:3000/api/upload`).then((res) =>
+    res.json()
+  );
+  console.log(uploads);
   return (
-    <main className='flex bg-gray-50 h-screen'>
-      <div className='border rounded-xl p-4 mx-auto mt-20 bg-white h-fit m-4'>
-        <h1>Uplaod Your Documents</h1>
-        <form onSubmit={submit}>
-          <input type='file' onChange={handleFileChange} />
-          <button
-            type='submit'
-            className='border  border-black px-2 py-1 rounded-md bg-gray-200 hover:bg-gray-300'
-          >
-            {loading ? 'Uploading...' : 'Upload'}
-          </button>
-        </form>
+    <div className='container p-4'>
+      <h1 className='text-xl my-4'>Uploaded Files</h1>
+      <div className='overflow-x-auto'>
+        <table className='table'>
+          {/* head */}
+          <thead>
+            <tr>
+              <th>
+                <label>
+                  <input type='checkbox' className='checkbox' />
+                </label>
+              </th>
+              <th>Name</th>
+              <th>Owner</th>
+              <th>Size</th>
+              <th>Created At</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {/* row 1 */}
+            {uploads.map((upload: UploadType) => (
+              <tr key={upload.Etag + upload.Etag}>
+                <td>
+                  <label>
+                    <input type='checkbox' className='checkbox' />
+                  </label>
+                </td>
+                <td>
+                  <Link
+                    href={`https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${upload.Key}`}
+                  >
+                    {upload.Key}
+                  </Link>
+                </td>
+                <td>{upload.Owner.DisplayName}</td>
+                <td>
+                  {Math.round(upload.Size / 1024) > 1024
+                    ? `${Math.round(upload.Size / 1024 / 1024)} MB`
+                    : `${Math.round(upload.Size / 1024)} KB`}
+                </td>
+                <td>
+                  <button className='btn glass btn-xs text-xs'>
+                    {Math.round(
+                      (new Date().getTime() -
+                        new Date(upload.LastModified).getTime()) /
+                        (1000 * 60 * 60 * 24)
+                    )}{' '}
+                    Days Ago
+                  </button>
+                </td>
+                <td>
+                  <button className='btn btn-danger'>Delete</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          {/* foot */}
+          <tfoot>
+            <tr>
+              <th></th>
+              <th>Name</th>
+              <th>Owner</th>
+              <th>Size</th>
+              <th>Created At</th>
+              <th>Action</th>
+            </tr>
+          </tfoot>
+        </table>
       </div>
-    </main>
+    </div>
   );
 }
+
+export default page;
