@@ -19,7 +19,6 @@ async function page() {
     const uploads = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/upload`
     ).then((res) => res.json());
-    console.log(uploads);
     return (
       <div className='container p-4'>
         <h1 className='text-xl my-4'>Uploaded Files</h1>

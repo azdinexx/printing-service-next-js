@@ -8,23 +8,23 @@ function Page() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/login`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          secretKey,
-        }),
-      }
-    );
+    const response = await fetch(`/api/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        secretKey,
+      }),
+    });
 
     const data = await response.json();
-    if (data.error) {
-      setError(data.error);
+    if (data.status) {
+      setError(data.status);
+      setLoading(false);
+      return;
     }
+
     setLoading(false);
   };
   return (
@@ -32,7 +32,7 @@ function Page() {
       <form onSubmit={handleSubmit} className='card gap-3'>
         {error && <div className='alert alert-error'>{error}</div>}
         <input
-          type='text'
+          type='password'
           name='secretKey'
           value={secretKey}
           onChange={(e) => {
@@ -40,7 +40,7 @@ function Page() {
             if (error) setError('');
           }}
           placeholder='Enter your secret key here...'
-          className='border border-gray-300 p-2 rounded-lg'
+          className='border border-gray-300 p-2 rounded-lg input input-primary'
         />
 
         <button type='submit' className='btn btn-primary '>
