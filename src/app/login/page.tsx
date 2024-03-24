@@ -1,10 +1,13 @@
 'use client';
+import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
 function Page() {
   const [secretKey, setSecretKey] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -18,9 +21,15 @@ function Page() {
       }),
     });
 
-    const data = await response.json();
-    if (data.status) {
-      setError(data.status);
+    const data: { message: string } = (await response.json()) as {
+      message: string;
+    };
+    if (data.message) {
+      if (data.message == 'loggedin successfully') {
+        router.push('/');
+      }
+      setError(data.message);
+
       setLoading(false);
       return;
     }
