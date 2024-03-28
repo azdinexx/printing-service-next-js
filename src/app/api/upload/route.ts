@@ -30,7 +30,15 @@ export async function POST(request: NextRequest) {
     files.map(async (file) => {
       // not sure why I have to override the types here
       const Body = (await file.arrayBuffer()) as Buffer;
-      s3.send(new PutObjectCommand({ Bucket, Key: file.name, Body }));
+      s3.send(
+        new PutObjectCommand({
+          Bucket,
+          Key: file.name,
+          Body,
+          ACL: 'public-read',
+          Expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+        })
+      );
     })
   );
 
